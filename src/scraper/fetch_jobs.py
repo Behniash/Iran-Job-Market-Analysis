@@ -1,9 +1,13 @@
 from pathlib import Path
+import random
+import time
 import pandas as pd
+import requests
 from src.api.api_client import JobVisionAPI
 
 
 KEYWORDS = [
+
     # Backend
     "python",
     "django",
@@ -12,8 +16,18 @@ KEYWORDS = [
     "backend",
     "backend developer",
     "software engineer",
+    "software developer",
     "developer",
     "programmer",
+    "java",
+    "spring",
+    "spring boot",
+    "php",
+    "laravel",
+    ".net",
+    "asp.net",
+    "nodejs",
+    "express",
 
     # Frontend
     "frontend",
@@ -26,6 +40,8 @@ KEYWORDS = [
     "javascript",
     "typescript",
     "nextjs",
+    "html",
+    "css",
 
     # Mobile
     "android",
@@ -35,7 +51,7 @@ KEYWORDS = [
     "kotlin",
     "swift",
 
-    # DevOps
+    # DevOps & Cloud
     "devops",
     "linux",
     "docker",
@@ -44,7 +60,6 @@ KEYWORDS = [
     "azure",
     "gcp",
     "terraform",
-    "ansible",
     "jenkins",
 
     # Database
@@ -54,39 +69,62 @@ KEYWORDS = [
     "oracle",
     "mongodb",
     "redis",
+    "database administrator",
 
-    # Data
-    "data scientist",
+    # Data & AI
     "data analyst",
     "data engineer",
+    "data scientist",
+    "business intelligence",
+    "power bi",
+    "tableau",
+    "etl",
     "machine learning",
     "deep learning",
     "artificial intelligence",
     "computer vision",
     "nlp",
-    "power bi",
-    "tableau",
-    "etl",
     "spark",
     "airflow",
     "hadoop",
 
     # QA
     "qa",
+    "quality assurance",
     "test engineer",
-    "automation",
+    "automation tester",
 
     # Security
     "security",
     "cyber security",
     "penetration tester",
+    "soc",
 
-    # General IT
-    "it",
+    # Infrastructure
     "network",
+    "network engineer",
     "system administrator",
-    "database administrator",
-    "cloud engineer"
+    "cloud engineer",
+
+    # Persian
+    "برنامه نویس",
+    "توسعه دهنده",
+    "برنامه نویس پایتون",
+    "برنامه نویس جاوا",
+    "برنامه نویس وب",
+    "برنامه نویس بک اند",
+    "برنامه نویس فرانت اند",
+    "برنامه نویس اندروید",
+    "برنامه نویس فلاتر",
+    "مهندس نرم افزار",
+    "تحلیلگر داده",
+    "مهندس داده",
+    "دانشمند داده",
+    "هوش مصنوعی",
+    "یادگیری ماشین",
+    "دواپس",
+    "کارشناس شبکه",
+    "ادمین شبکه",
 ]
 
 
@@ -96,8 +134,39 @@ class JobFetcher:
         self.api = JobVisionAPI()
 
     def fetch_page(self, keyword, page):
-        response = self.api.get_job_list(keyword=keyword, page=page)
-        return response["data"]
+
+        retries = 5
+
+        for attempt in range(retries):
+
+            try:
+
+                response = self.api.get_job_list(
+                    keyword=keyword,
+                    page=page
+                )
+
+                return response["data"]
+
+            except requests.exceptions.ReadTimeout:
+
+                print(
+                    f"Timeout -> {keyword} | Page {page} "
+                    f"({attempt + 1}/{retries})"
+                )
+
+            except requests.exceptions.RequestException as e:
+
+                print(
+                    f"Request Error -> {keyword} | Page {page}"
+                )
+                print(e)
+
+            time.sleep(2 ** attempt)
+
+        print(f"Skipped Page {page}")
+
+        return None
 
     def parse_jobs(self, data, keyword):
 
@@ -136,7 +205,9 @@ class JobFetcher:
 
                     "urgent": properties.get("isUrgent"),
 
-                    "experience_years": properties.get("requiredRelatedExperienceYears"),
+                    "experience_years": properties.get(
+                        "requiredRelatedExperienceYears"
+                    ),
 
                 })
 
@@ -158,6 +229,10 @@ class JobFetcher:
 
             data = self.fetch_page(keyword, page)
 
+            if data is None:
+                page += 1
+                continue
+
             jobs = self.parse_jobs(data, keyword)
 
             if not jobs:
@@ -169,8 +244,10 @@ class JobFetcher:
 
             if len(jobs) < data["pageSize"]:
                 break
-            
+
             page += 1
+
+            time.sleep(random.uniform(0.8, 1.5))
 
         return all_jobs
 
@@ -179,28 +256,39 @@ if __name__ == "__main__":
 
     fetcher = JobFetcher()
 
-    rows = []
-
-    for keyword in KEYWORDS:
-
-        rows.extend(
-            fetcher.fetch_keyword(keyword)
-        )
-
-    df = pd.DataFrame(rows)
-
-    print(f"\nBefore Remove Duplicates : {len(df)}")
-
-    df.drop_duplicates(
-        subset="job_id",
-        inplace=True
-    )
-
-    print(f"After Remove Duplicates  : {len(df)}")
-
     output_dir = Path("data/raw")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    df.to_csv(output_dir / "job_list.csv", index=False, encoding="utf-8-sig")
+    output_file = output_dir / "job_list.csv"
 
-    print("\nSaved Successfully.")
+    if output_file.exists():
+
+        all_df = pd.read_csv(output_file)
+
+    else:
+
+        all_df = pd.DataFrame()
+
+    for keyword in KEYWORDS:
+
+        print("-" * 60)
+        print(f"Start Keyword : {keyword}")
+        print("-" * 60)
+
+        jobs = fetcher.fetch_keyword(keyword)
+
+        if jobs:
+
+            df = pd.DataFrame(jobs)
+
+            all_df = pd.concat([all_df, df], ignore_index=True)
+
+            all_df.drop_duplicates(subset="job_id", inplace=True)
+
+            all_df.to_csv(output_file, index=False, encoding="utf-8-sig")
+            print(f"Saved -> {len(all_df)} unique jobs")
+
+        time.sleep(random.uniform(2, 4))
+
+    print("\nFinished.")
+    print(f"Total Unique Jobs : {len(all_df)}")
