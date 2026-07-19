@@ -4,7 +4,7 @@ import time
 import pandas as pd
 import requests
 from src.api.api_client import JobVisionAPI
-
+from datetime import datetime
 
 KEYWORDS = [
 
@@ -140,20 +140,11 @@ class JobFetcher:
         for attempt in range(retries):
 
             try:
-
-                response = self.api.get_job_list(
-                    keyword=keyword,
-                    page=page
-                )
-
+                response = self.api.get_job_list(keyword=keyword, page=page)
                 return response["data"]
-
             except requests.exceptions.ReadTimeout:
 
-                print(
-                    f"Timeout -> {keyword} | Page {page} "
-                    f"({attempt + 1}/{retries})"
-                )
+                print(f"Timeout -> {keyword} | Page {page} " f"({attempt + 1}/{retries})")
 
             except requests.exceptions.RequestException as e:
 
@@ -184,31 +175,16 @@ class JobFetcher:
                 properties = job.get("properties") or {}
 
                 jobs.append({
-
+                    "source": "jobvision",
+                    "scraped_at": datetime.now().strftime("%Y-%m-%d"),
                     "keyword": keyword,
-
                     "job_id": job.get("id"),
-
                     "title": job.get("title"),
-
                     "company": company.get("nameFa"),
-
                     "province": province.get("titleFa"),
-
                     "city": city.get("titleFa"),
-
                     "salary_visible": properties.get("salaryCanBeShown"),
-
-                    "internship": properties.get("isInternship"),
-
-                    "remote": properties.get("isRemote"),
-
-                    "urgent": properties.get("isUrgent"),
-
-                    "experience_years": properties.get(
-                        "requiredRelatedExperienceYears"
-                    ),
-
+                    "experience_years": properties.get("requiredRelatedExperienceYears"),
                 })
 
             except Exception as e:
@@ -256,7 +232,7 @@ if __name__ == "__main__":
 
     fetcher = JobFetcher()
 
-    output_dir = Path("data/raw")
+    output_dir = Path("data/raw/jobvision")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_file = output_dir / "job_list.csv"
@@ -283,7 +259,7 @@ if __name__ == "__main__":
 
             all_df = pd.concat([all_df, df], ignore_index=True)
 
-            all_df.drop_duplicates(subset="job_id", inplace=True)
+            all_df.drop_duplicates(subset=["source", "job_id", "keyword"], inplace=True)
 
             all_df.to_csv(output_file, index=False, encoding="utf-8-sig")
             print(f"Saved -> {len(all_df)} unique jobs")
