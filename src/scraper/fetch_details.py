@@ -3,11 +3,11 @@ import random
 import time
 import pandas as pd
 import requests
-
+from datetime import datetime
 from src.api.api_client import JobVisionAPI
 
-INPUT_FILE = Path("data/raw/job_list.csv")
-OUTPUT_FILE = Path("data/raw/job_details.csv")
+INPUT_FILE = Path("data/raw/jobvision/job_list.csv")
+OUTPUT_FILE = Path("data/raw/jobvision/job_details.csv")
 
 CHECKPOINT_EVERY = 200
 MAX_RETRIES = 3
@@ -64,6 +64,8 @@ def main():
         salary = data.get("salary") or {}
 
         details.append({
+            "source": "jobvision",
+            "scraped_at": datetime.now().strftime("%Y-%m-%d"),
             "job_id": job_id,
             "description": data.get("description"),
             "work_type": (data.get("workType") or {}).get("titleEn"),
