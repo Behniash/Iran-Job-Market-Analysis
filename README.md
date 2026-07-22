@@ -577,6 +577,4 @@ The final result is an end-to-end Job Market Intelligence Platform built from re
 
 # Author
 
-**Behnia Shaygan**
-
-Data Analytics & Data Science Portfolio Project
+**Behnia Shayeste**
