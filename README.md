@@ -388,3 +388,319 @@ Business Intelligence
 ```
 
 The final result is an end-to-end Job Market Intelligence Platform built from real-world collected data.
+
+# 9. Recommendation System
+
+## Building an Intelligent Job Matching Engine
+
+After analyzing the job market and extracting valuable features, the final stage of the project was developing a recommendation system that matches candidates with suitable job opportunities.
+
+The objective was to create a system that can answer:
+
+> "Given a candidate's skills and experience, which job opportunities are the most relevant?"
+
+---
+
+# Recommendation Approach
+
+The recommendation system is based on content-based filtering.
+
+The system compares:
+
+```
+Candidate Profile
+        ↔
+Job Requirements
+```
+
+and calculates how similar they are.
+
+The matching process is based on:
+
+- Candidate skills
+- Required job skills
+- Experience level
+- Job category
+- Technical requirements
+
+---
+
+# Text Processing & Feature Representation
+
+Since job descriptions and skills are text-based, they were converted into numerical representations.
+
+The pipeline includes:
+
+```
+Raw Skills / Job Requirements
+              |
+              ↓
+       Text Preprocessing
+              |
+              ↓
+      Feature Vectorization
+              |
+              ↓
+ Similarity Calculation
+              |
+              ↓
+      Ranked Recommendations
+```
+
+---
+
+# TF-IDF Vectorization
+
+To represent job skills mathematically, TF-IDF (Term Frequency - Inverse Document Frequency) was used.
+
+TF-IDF measures the importance of a word within a document compared to the entire dataset.
+
+The formula:
+
+```
+TF-IDF(t,d) = TF(t,d) × IDF(t)
+```
+
+Where:
+
+### Term Frequency (TF)
+
+Measures how often a term appears in a document:
+
+```
+TF(t,d) =
+(Number of times term t appears in document d)
+/
+(Total number of terms in document d)
+```
+
+---
+
+### Inverse Document Frequency (IDF)
+
+Reduces the importance of common words:
+
+```
+IDF(t) =
+log(
+Total number of documents
+/
+Number of documents containing term t
+)
+```
+
+This allows the model to identify more meaningful skills.
+
+Example:
+
+Common words:
+
+```
+Developer
+Engineer
+Software
+```
+
+Higher-value terms:
+
+```
+Python
+TensorFlow
+Docker
+SQL
+AWS
+```
+
+---
+
+# Similarity Calculation
+
+After converting candidate profiles and jobs into vectors, similarity was calculated using Cosine Similarity.
+
+The formula:
+
+```
+Cosine Similarity(A,B) =
+
+        A · B
+---------------------
+     ||A|| × ||B||
+```
+
+Where:
+
+- A = Candidate vector
+- B = Job vector
+- A · B = Dot product
+- ||A|| = Vector magnitude
+
+
+The output is a similarity score:
+
+```
+0  → Completely different
+1  → Identical match
+```
+
+---
+
+# Recommendation Algorithm
+
+The complete recommendation workflow:
+
+```
+Candidate Input
+
+Skills:
+Python, SQL, Pandas
+
+        |
+        ↓
+
+Convert Candidate Profile
+into TF-IDF Vector
+
+        |
+        ↓
+
+Compare Against All Jobs
+
+        |
+        ↓
+
+Calculate Cosine Similarity
+
+        |
+        ↓
+
+Sort Scores Descending
+
+        |
+        ↓
+
+Return Top-N Recommended Jobs
+```
+
+---
+
+# Custom Recommendation Functions
+
+Reusable functions were created for:
+
+- Processing candidate skills
+- Creating feature vectors
+- Calculating similarity scores
+- Ranking job opportunities
+- Returning top recommendations
+
+Example workflow:
+
+```python
+recommend_jobs(
+    candidate_skills,
+    top_n=10
+)
+```
+
+Output:
+
+| Job Title | Company | Similarity Score |
+|---|---|---|
+| Data Analyst | Company A | 0.87 |
+| Python Developer | Company B | 0.82 |
+| BI Analyst | Company C | 0.79 |
+
+---
+
+# Recommendation System Challenges
+
+During implementation, several challenges were handled:
+
+## Skill Normalization
+
+Different writing styles:
+
+```
+python
+Python
+PYTHON
+```
+
+were standardized into:
+
+```
+Python
+```
+
+---
+
+## Missing Skills
+
+Some advertisements had incomplete skill information.
+
+Solutions:
+
+- Using job descriptions
+- Extracting keywords
+- Combining multiple text fields
+
+---
+
+## Persian Text Processing
+
+Handled:
+
+- Persian character normalization
+- Text cleaning
+- Removing unnecessary words
+- Standardizing extracted skills
+
+---
+
+# Future Improvements
+
+The current recommendation engine can be extended with:
+
+## Advanced NLP Models
+
+- Word embeddings
+- Sentence transformers
+- Semantic similarity models
+
+## Hybrid Recommendation
+
+Combining:
+
+- Content-based filtering
+- User behavior
+- Application history
+
+## Ranking Models
+
+Using:
+
+- Learning-to-Rank algorithms
+- Gradient Boosting Models
+- Neural recommendation systems
+
+---
+
+# Final Result
+
+The final system transforms:
+
+```
+Candidate Skills
+        +
+Job Market Data
+
+        ↓
+
+Similarity-Based Intelligence
+
+        ↓
+
+Personalized Job Recommendations
+```
+
+creating a foundation for an intelligent career recommendation platform.
