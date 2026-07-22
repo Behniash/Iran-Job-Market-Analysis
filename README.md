@@ -1,17 +1,49 @@
-# End-to-End Project Journey
+# Iran Job Market Intelligence Platform
 
-This project was built as a complete data analytics and machine learning pipeline, starting from raw web data collection and ending with business intelligence insights and a recommendation system.
+## Turning Raw Job Data into Market Intelligence & Personalized Recommendations
 
-The entire workflow includes:
+An end-to-end data analytics and machine learning platform designed to analyze the Iranian job market, discover high-demand skills, understand salary trends, extract business insights, and provide personalized job recommendations.
+
+Unlike projects based on ready-made datasets, this project started from raw web data collection and developed into a complete data product through:
+
+- Web Scraping
+- Data Engineering
+- Data Cleaning
+- Data Quality Validation
+- Exploratory Data Analysis
+- Feature Engineering
+- NLP-Based Recommendation System
+- Interactive Dashboard
+
+---
+
+# Project Overview
+
+The job market generates thousands of job advertisements every day, but most of this information remains unstructured and difficult to analyze.
+
+This project transforms raw job advertisements into actionable intelligence by answering questions such as:
+
+- Which skills are most demanded in the market?
+- Which technologies provide better career opportunities?
+- How does salary vary based on skills, experience, and location?
+- Which companies and industries are actively hiring?
+- What skills should candidates learn to improve their opportunities?
+- Which jobs are the best match for a candidate profile?
+
+The final goal is to build a data-driven job market intelligence platform.
+
+---
+
+# End-to-End Project Workflow
 
 ```
-Data Acquisition
+Job Platform Data
         |
         ↓
 Web Scraping Pipeline
         |
         ↓
-Data Storage & Organization
+Raw Data Collection
         |
         ↓
 Data Cleaning
@@ -44,22 +76,21 @@ Business Insights & Recommendations
 
 ## Building a Real-World Dataset
 
-Instead of using a pre-existing cleaned dataset, this project started by collecting raw job market data directly from:
+Instead of using a pre-cleaned public dataset, this project started by collecting raw job market data directly from:
 
 ## JobVision.ir
 
-JobVision is one of the largest Iranian employment platforms, containing thousands of job advertisements from different industries, companies, and locations.
+JobVision is one of the largest Iranian employment platforms, containing thousands of job advertisements across different industries, companies, locations, and career levels.
 
-A custom web scraping pipeline was developed to collect job advertisement information.
+A custom web scraping pipeline was developed to collect real-world job advertisement data.
 
-Collected features included:
+Collected information includes:
 
 - Job title
 - Company name
 - Province
 - City
-- Salary visibility
-- Salary range
+- Salary information
 - Employment type
 - Remote opportunities
 - Internship availability
@@ -76,22 +107,22 @@ Collected features included:
 
 # 2. Data Extraction & Parsing
 
-The scraped information was originally stored as raw web data.
+The collected information was initially unstructured web data.
 
-The extraction process transformed unstructured website content into structured tabular data.
+A data extraction pipeline was developed to transform raw website content into structured datasets.
 
 Main tasks:
 
 - HTML parsing
 - Extracting required fields
 - Converting nested information into columns
-- Cleaning text fields
+- Cleaning extracted text
 - Handling missing elements
-- Preparing raw datasets for analysis
+- Preparing datasets for analysis
 
 ---
 
-# 3. Data Storage & Project Organization
+# 3. Data Storage & Organization
 
 The project follows a structured data workflow:
 
@@ -105,45 +136,35 @@ data/
       └── Clean analytical datasets
 ```
 
-Raw data was preserved separately from processed data to maintain reproducibility and allow future improvements in the pipeline.
+Raw data was preserved separately from processed data to maintain reproducibility and support future improvements.
 
 ---
 
 # 4. Data Cleaning & Preprocessing
 
-Real-world scraped data is usually noisy and inconsistent.
+Real-world scraped data contains noise, inconsistencies, and missing information.
 
-A complete cleaning pipeline was implemented.
+A complete preprocessing pipeline was implemented.
 
-## Data Cleaning Tasks:
+Performed tasks:
 
-- Removing duplicated advertisements
+- Removing duplicate advertisements
 - Handling missing values
 - Fixing incorrect data types
 - Standardizing categories
-- Cleaning Persian text
-- Normalizing skills
-- Processing salary information
+- Persian text normalization
+- Skill normalization
+- Salary preprocessing
 - Extracting structured information from descriptions
 
-Examples:
+Example:
 
 Before:
 
 ```
-"3 تا 5 سال سابقه کار"
-```
-
-After:
-
-```
-experience_years = 3-5
-```
-
-Before:
-
-```
-Python ، python ، PYTHON
+python
+Python
+PYTHON
 ```
 
 After:
@@ -156,7 +177,7 @@ Python
 
 # 5. Data Quality Validation
 
-Before performing analysis, the dataset quality was evaluated.
+Before performing analytics, the dataset quality was evaluated.
 
 Validation checks included:
 
@@ -166,50 +187,50 @@ Validation checks included:
 - Incorrect experience values
 - Inconsistent categories
 - Empty critical fields
-- Data integrity checks
+- Data integrity validation
 
-The goal was to create a reliable analytical dataset instead of directly analyzing noisy scraped information.
+The goal was to create a reliable analytical dataset instead of directly analyzing noisy scraped data.
 
 ---
 
 # 6. Exploratory Data Analysis (EDA)
 
-A comprehensive EDA process was performed to understand the structure and behavior of the Iranian job market.
+A complete EDA process was performed to understand the Iranian job market.
 
 ## Market Overview Analysis
 
 Analyzed:
 
-- Total number of job advertisements
-- Most active provinces
+- Total job advertisements
+- Hiring activity by province
 - Popular cities
-- Hiring companies
-- Job categories distribution
+- Active companies
+- Job categories
 - Employment types
 
-Questions answered:
+Business questions:
 
-- Where is hiring activity concentrated?
-- Which industries have more opportunities?
+- Where is hiring concentrated?
+- Which industries have higher demand?
 - Which roles are most common?
 
 ---
 
-## Salary Analysis
+## Salary Intelligence
 
-Studied:
+Analyzed:
 
 - Salary distribution
-- Minimum and maximum salary ranges
+- Salary ranges
+- Experience vs salary relationship
 - Salary differences between roles
-- Relationship between experience and compensation
-- Location-based salary differences
+- Location-based salary variations
 
 Business questions:
 
 - Which jobs have higher earning potential?
 - How much does experience affect salary?
-- Which skills are associated with better compensation?
+- Which skills are associated with higher compensation?
 
 ---
 
@@ -223,7 +244,7 @@ Extracted insights:
 - Programming languages
 - Data tools
 - Frameworks
-- Popular technology combinations
+- Technology combinations
 
 Examples:
 
@@ -267,57 +288,220 @@ The project investigates:
 - Skill gaps
 - Company hiring behavior
 
-The goal is converting raw job advertisements into actionable insights.
+The objective is converting raw job advertisements into actionable insights.
 
 ---
 
 # 9. Recommendation System
 
-A job recommendation engine was developed to match candidates with suitable opportunities.
+## Building an Intelligent Job Matching Engine
 
-## Input:
+The final stage of the project was developing a recommendation system to match candidates with suitable job opportunities.
 
-Candidate profile:
+The system answers:
 
-```
-Skills
-+
-Experience
-+
-Career Preferences
-```
+> Given a candidate's skills and experience, which jobs are the most relevant?
 
-## Job Representation:
+---
 
-```
-Required Skills
-+
-Job Role
-+
-Experience Level
-```
+## Recommendation Approach
 
-## Matching Process:
+A content-based filtering approach was implemented.
+
+The system compares:
 
 ```
 Candidate Profile
-        |
-        ↓
-Feature Representation
-        |
-        ↓
-Similarity Calculation
-        |
-        ↓
-Ranked Job Recommendations
+
+        ↔
+
+Job Requirements
 ```
 
-Techniques:
+Based on:
 
-- Text preprocessing
-- TF-IDF Vectorization
-- Cosine Similarity
-- Skill-based matching
+- Candidate skills
+- Required skills
+- Experience level
+- Job category
+- Technical requirements
+
+---
+
+# Text Processing & Feature Representation
+
+Because job descriptions and skills are text-based, they were converted into numerical vectors.
+
+Pipeline:
+
+```
+Raw Skills / Job Description
+            |
+            ↓
+    Text Preprocessing
+            |
+            ↓
+    TF-IDF Vectorization
+            |
+            ↓
+ Similarity Calculation
+            |
+            ↓
+ Ranked Recommendations
+```
+
+---
+
+# TF-IDF Vectorization
+
+TF-IDF (Term Frequency - Inverse Document Frequency) was used to measure the importance of skills inside job descriptions.
+
+Formula:
+
+```
+TF-IDF(t,d) = TF(t,d) × IDF(t)
+```
+
+## Term Frequency
+
+```
+TF(t,d) =
+Number of times term appears in document
+/
+Total number of terms in document
+```
+
+## Inverse Document Frequency
+
+```
+IDF(t) =
+log(
+Total Documents
+/
+Documents containing term
+)
+```
+
+This allows the model to identify more meaningful technical skills.
+
+---
+
+# Similarity Calculation
+
+After vectorization, candidate profiles and jobs were compared using Cosine Similarity.
+
+Formula:
+
+```
+Cosine Similarity(A,B)
+
+        A · B
+--------------------
+      ||A|| × ||B||
+```
+
+Where:
+
+- A = Candidate vector
+- B = Job vector
+
+Similarity score:
+
+```
+0 → No similarity
+
+1 → Perfect match
+```
+
+---
+
+# Recommendation Pipeline
+
+```
+Candidate Skills
+
+      ↓
+
+Create Candidate Vector
+
+      ↓
+
+Compare With All Jobs
+
+      ↓
+
+Calculate Similarity Score
+
+      ↓
+
+Sort Results
+
+      ↓
+
+Return Top-N Recommendations
+```
+
+---
+
+# Custom Recommendation Functions
+
+Reusable functions were created for:
+
+- Processing candidate skills
+- Creating feature vectors
+- Calculating similarity scores
+- Ranking jobs
+- Returning top recommendations
+
+Example:
+
+```python
+recommend_jobs(
+    candidate_skills,
+    top_n=10
+)
+```
+
+---
+
+# Recommendation Challenges
+
+## Skill Normalization
+
+Different formats:
+
+```
+python
+Python
+PYTHON
+```
+
+were standardized into:
+
+```
+Python
+```
+
+---
+
+## Missing Skills
+
+Solutions:
+
+- Extracting keywords from descriptions
+- Using multiple text fields
+- Combining skill information
+
+---
+
+## Persian Text Processing
+
+Handled:
+
+- Persian character normalization
+- Text cleaning
+- Noise removal
+- Skill standardization
 
 ---
 
@@ -325,7 +509,7 @@ Techniques:
 
 The final insights are presented through an interactive dashboard.
 
-Dashboard components:
+Dashboard sections:
 
 ## Market Overview
 
@@ -351,23 +535,21 @@ Dashboard components:
 
 ---
 
-# 11. Final Business Outcomes
+# Business Applications
 
-This project demonstrates how raw web data can become a complete intelligence platform.
-
-Potential applications:
+This platform can support:
 
 - Recruitment analytics
-- HR decision support
-- Career recommendation systems
+- HR intelligence systems
+- Career recommendation platforms
 - Workforce planning
-- Skill trend monitoring
+- Skill gap analysis
 
 ---
 
-# Project Summary
+# Final Project Outcome
 
-This project covers the complete lifecycle of a real-world data product:
+This project demonstrates the complete lifecycle of a real-world data product:
 
 ```
 Web Scraping
@@ -384,323 +566,17 @@ Feature Engineering
       ↓
 Machine Learning
       ↓
+Recommendation System
+      ↓
 Business Intelligence
 ```
 
 The final result is an end-to-end Job Market Intelligence Platform built from real-world collected data.
 
-# 9. Recommendation System
-
-## Building an Intelligent Job Matching Engine
-
-After analyzing the job market and extracting valuable features, the final stage of the project was developing a recommendation system that matches candidates with suitable job opportunities.
-
-The objective was to create a system that can answer:
-
-> "Given a candidate's skills and experience, which job opportunities are the most relevant?"
-
 ---
 
-# Recommendation Approach
+# Author
 
-The recommendation system is based on content-based filtering.
+**Behnia Shaygan**
 
-The system compares:
-
-```
-Candidate Profile
-        ↔
-Job Requirements
-```
-
-and calculates how similar they are.
-
-The matching process is based on:
-
-- Candidate skills
-- Required job skills
-- Experience level
-- Job category
-- Technical requirements
-
----
-
-# Text Processing & Feature Representation
-
-Since job descriptions and skills are text-based, they were converted into numerical representations.
-
-The pipeline includes:
-
-```
-Raw Skills / Job Requirements
-              |
-              ↓
-       Text Preprocessing
-              |
-              ↓
-      Feature Vectorization
-              |
-              ↓
- Similarity Calculation
-              |
-              ↓
-      Ranked Recommendations
-```
-
----
-
-# TF-IDF Vectorization
-
-To represent job skills mathematically, TF-IDF (Term Frequency - Inverse Document Frequency) was used.
-
-TF-IDF measures the importance of a word within a document compared to the entire dataset.
-
-The formula:
-
-```
-TF-IDF(t,d) = TF(t,d) × IDF(t)
-```
-
-Where:
-
-### Term Frequency (TF)
-
-Measures how often a term appears in a document:
-
-```
-TF(t,d) =
-(Number of times term t appears in document d)
-/
-(Total number of terms in document d)
-```
-
----
-
-### Inverse Document Frequency (IDF)
-
-Reduces the importance of common words:
-
-```
-IDF(t) =
-log(
-Total number of documents
-/
-Number of documents containing term t
-)
-```
-
-This allows the model to identify more meaningful skills.
-
-Example:
-
-Common words:
-
-```
-Developer
-Engineer
-Software
-```
-
-Higher-value terms:
-
-```
-Python
-TensorFlow
-Docker
-SQL
-AWS
-```
-
----
-
-# Similarity Calculation
-
-After converting candidate profiles and jobs into vectors, similarity was calculated using Cosine Similarity.
-
-The formula:
-
-```
-Cosine Similarity(A,B) =
-
-        A · B
----------------------
-     ||A|| × ||B||
-```
-
-Where:
-
-- A = Candidate vector
-- B = Job vector
-- A · B = Dot product
-- ||A|| = Vector magnitude
-
-
-The output is a similarity score:
-
-```
-0  → Completely different
-1  → Identical match
-```
-
----
-
-# Recommendation Algorithm
-
-The complete recommendation workflow:
-
-```
-Candidate Input
-
-Skills:
-Python, SQL, Pandas
-
-        |
-        ↓
-
-Convert Candidate Profile
-into TF-IDF Vector
-
-        |
-        ↓
-
-Compare Against All Jobs
-
-        |
-        ↓
-
-Calculate Cosine Similarity
-
-        |
-        ↓
-
-Sort Scores Descending
-
-        |
-        ↓
-
-Return Top-N Recommended Jobs
-```
-
----
-
-# Custom Recommendation Functions
-
-Reusable functions were created for:
-
-- Processing candidate skills
-- Creating feature vectors
-- Calculating similarity scores
-- Ranking job opportunities
-- Returning top recommendations
-
-Example workflow:
-
-```python
-recommend_jobs(
-    candidate_skills,
-    top_n=10
-)
-```
-
-Output:
-
-| Job Title | Company | Similarity Score |
-|---|---|---|
-| Data Analyst | Company A | 0.87 |
-| Python Developer | Company B | 0.82 |
-| BI Analyst | Company C | 0.79 |
-
----
-
-# Recommendation System Challenges
-
-During implementation, several challenges were handled:
-
-## Skill Normalization
-
-Different writing styles:
-
-```
-python
-Python
-PYTHON
-```
-
-were standardized into:
-
-```
-Python
-```
-
----
-
-## Missing Skills
-
-Some advertisements had incomplete skill information.
-
-Solutions:
-
-- Using job descriptions
-- Extracting keywords
-- Combining multiple text fields
-
----
-
-## Persian Text Processing
-
-Handled:
-
-- Persian character normalization
-- Text cleaning
-- Removing unnecessary words
-- Standardizing extracted skills
-
----
-
-# Future Improvements
-
-The current recommendation engine can be extended with:
-
-## Advanced NLP Models
-
-- Word embeddings
-- Sentence transformers
-- Semantic similarity models
-
-## Hybrid Recommendation
-
-Combining:
-
-- Content-based filtering
-- User behavior
-- Application history
-
-## Ranking Models
-
-Using:
-
-- Learning-to-Rank algorithms
-- Gradient Boosting Models
-- Neural recommendation systems
-
----
-
-# Final Result
-
-The final system transforms:
-
-```
-Candidate Skills
-        +
-Job Market Data
-
-        ↓
-
-Similarity-Based Intelligence
-
-        ↓
-
-Personalized Job Recommendations
-```
-
-creating a foundation for an intelligent career recommendation platform.
+Data Analytics & Data Science Portfolio Project
