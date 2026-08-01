@@ -228,7 +228,7 @@ class JobFetcher:
         return all_jobs
 
 
-if __name__ == "__main__":
+def main():
 
     fetcher = JobFetcher()
 
@@ -268,3 +268,8 @@ if __name__ == "__main__":
 
     print("\nFinished.")
     print(f"Total Unique Jobs : {len(all_df)}")
+
+
+
+if __name__ == "__main__":
+    main()
