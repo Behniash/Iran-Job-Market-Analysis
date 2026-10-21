@@ -78,5 +78,6 @@ def main():
     print(f"Final rows: {len(df)}")
 
 
+
 if __name__ == "__main__":
     main()
