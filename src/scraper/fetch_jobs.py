@@ -1,130 +1,63 @@
+from datetime import datetime
 from pathlib import Path
 import random
 import time
+
 import pandas as pd
 import requests
+
 from src.api.api_client import JobVisionAPI
-from datetime import datetime
+
+PAGE_SIZE = 30
+MAX_PAGES = 200
+MAX_CONSECUTIVE_FAILS = 3
+
+OUTPUT_DIR = Path("data/raw/jobvision")
+OUTPUT_FILE = OUTPUT_DIR / "job_list.csv"
 
 KEYWORDS = [
-
     # Backend
-    "python",
-    "django",
-    "fastapi",
-    "flask",
-    "backend",
-    "backend developer",
-    "software engineer",
-    "software developer",
-    "developer",
-    "programmer",
-    "java",
-    "spring",
-    "spring boot",
-    "php",
-    "laravel",
-    ".net",
-    "asp.net",
-    "nodejs",
-    "express",
+    "python", "django", "fastapi", "flask", "backend", "backend developer",
+    "software engineer", "software developer", "developer", "programmer",
+    "java", "spring", "spring boot", "php", "laravel", ".net", "asp.net",
+    "nodejs", "express",
 
     # Frontend
-    "frontend",
-    "frontend developer",
-    "react",
-    "reactjs",
-    "vue",
-    "vuejs",
-    "angular",
-    "javascript",
-    "typescript",
-    "nextjs",
-    "html",
-    "css",
+    "frontend", "frontend developer", "react", "reactjs", "vue", "vuejs",
+    "angular", "javascript", "typescript", "nextjs", "html", "css",
 
     # Mobile
-    "android",
-    "ios",
-    "flutter",
-    "react native",
-    "kotlin",
-    "swift",
+    "android", "ios", "flutter", "react native", "kotlin", "swift",
 
     # DevOps & Cloud
-    "devops",
-    "linux",
-    "docker",
-    "kubernetes",
-    "aws",
-    "azure",
-    "gcp",
-    "terraform",
-    "jenkins",
+    "devops", "linux", "docker", "kubernetes", "aws", "azure", "gcp",
+    "terraform", "jenkins",
 
     # Database
-    "sql",
-    "mysql",
-    "postgresql",
-    "oracle",
-    "mongodb",
-    "redis",
+    "sql", "mysql", "postgresql", "oracle", "mongodb", "redis",
     "database administrator",
 
     # Data & AI
-    "data analyst",
-    "data engineer",
-    "data scientist",
-    "business intelligence",
-    "power bi",
-    "tableau",
-    "etl",
-    "machine learning",
-    "deep learning",
-    "artificial intelligence",
-    "computer vision",
-    "nlp",
-    "spark",
-    "airflow",
+    "data analyst", "data engineer", "data scientist", "business intelligence",
+    "power bi", "tableau", "etl", "machine learning", "deep learning",
+    "artificial intelligence", "computer vision", "nlp", "spark", "airflow",
     "hadoop",
 
     # QA
-    "qa",
-    "quality assurance",
-    "test engineer",
-    "automation tester",
+    "qa", "quality assurance", "test engineer", "automation tester",
 
     # Security
-    "security",
-    "cyber security",
-    "penetration tester",
-    "soc",
+    "security", "cyber security", "penetration tester", "soc",
 
     # Infrastructure
-    "network",
-    "network engineer",
-    "system administrator",
-    "cloud engineer",
+    "network", "network engineer", "system administrator", "cloud engineer",
 
     # Persian
-    "برنامه نویس",
-    "توسعه دهنده",
-    "برنامه نویس پایتون",
-    "برنامه نویس جاوا",
-    "برنامه نویس وب",
-    "برنامه نویس بک اند",
-    "برنامه نویس فرانت اند",
-    "برنامه نویس اندروید",
-    "برنامه نویس فلاتر",
-    "مهندس نرم افزار",
-    "تحلیلگر داده",
-    "مهندس داده",
-    "دانشمند داده",
-    "هوش مصنوعی",
-    "یادگیری ماشین",
-    "دواپس",
-    "کارشناس شبکه",
-    "ادمین شبکه",
+    "برنامه نویس", "توسعه دهنده", "برنامه نویس پایتون", "برنامه نویس جاوا",
+    "برنامه نویس وب", "برنامه نویس بک اند", "برنامه نویس فرانت اند",
+    "برنامه نویس اندروید", "برنامه نویس فلاتر", "مهندس نرم افزار",
+    "تحلیلگر داده", "مهندس داده", "دانشمند داده", "هوش مصنوعی",
+    "یادگیری ماشین", "دواپس", "کارشناس شبکه", "ادمین شبکه",
 ]
 
 
@@ -134,39 +67,33 @@ class JobFetcher:
         self.api = JobVisionAPI()
 
     def fetch_page(self, keyword, page):
-
         retries = 5
 
         for attempt in range(retries):
-
             try:
                 response = self.api.get_job_list(keyword=keyword, page=page)
-                return response["data"]
+                data = response.get("data")
+                if data is not None:
+                    return data
+                print(f"Empty data -> {keyword} | Page {page}")
+
             except requests.exceptions.ReadTimeout:
+                print(f"Timeout -> {keyword} | Page {page} ({attempt + 1}/{retries})")
 
-                print(f"Timeout -> {keyword} | Page {page} " f"({attempt + 1}/{retries})")
-
-            except requests.exceptions.RequestException as e:
-
-                print(
-                    f"Request Error -> {keyword} | Page {page}"
-                )
+            except (requests.exceptions.RequestException, ValueError) as e:
+                print(f"Request Error -> {keyword} | Page {page}")
                 print(e)
 
             time.sleep(2 ** attempt)
 
         print(f"Skipped Page {page}")
-
         return None
 
     def parse_jobs(self, data, keyword):
-
         jobs = []
 
-        for job in data.get("jobPosts", []):
-
+        for job in data.get("jobPosts") or []:
             try:
-
                 location = job.get("location") or {}
                 province = location.get("province") or {}
                 city = location.get("city") or {}
@@ -188,87 +115,102 @@ class JobFetcher:
                 })
 
             except Exception as e:
-
                 print(f"Skipped Job {job.get('id')} -> {e}")
 
         return jobs
 
     def fetch_keyword(self, keyword):
-
         page = 1
-
+        fails = 0
         all_jobs = []
+        seen_ids = set()
 
-        while True:
-
+        while page <= MAX_PAGES:
             print(f"\nKeyword = {keyword} | Page = {page}")
 
             data = self.fetch_page(keyword, page)
 
             if data is None:
+                fails += 1
+                if fails >= MAX_CONSECUTIVE_FAILS:
+                    print(f"Too many failed pages, stopping keyword: {keyword}")
+                    break
                 page += 1
                 continue
 
-            jobs = self.parse_jobs(data, keyword)
+            fails = 0
 
+            jobs = self.parse_jobs(data, keyword)
             if not jobs:
                 break
 
-            all_jobs.extend(jobs)
+            new_jobs = [j for j in jobs if j["job_id"] not in seen_ids]
+            if not new_jobs:
+                print("No new jobs on this page -> stopping keyword")
+                break
 
-            print(f"Collected: {len(jobs)} jobs")
+            seen_ids.update(j["job_id"] for j in new_jobs)
+            all_jobs.extend(new_jobs)
 
-            if len(jobs) < data["pageSize"]:
+            print(f"Page jobs: {len(jobs)} | New: {len(new_jobs)} | Total: {len(all_jobs)}")
+
+            if len(jobs) < (data.get("pageSize") or PAGE_SIZE):
                 break
 
             page += 1
-
             time.sleep(random.uniform(0.8, 1.5))
 
         return all_jobs
 
 
-def main():
+def save(df):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = OUTPUT_FILE.with_suffix(".csv.tmp")
+    df.to_csv(tmp, index=False, encoding="utf-8-sig")
+    tmp.replace(OUTPUT_FILE)
 
+
+def main():
     fetcher = JobFetcher()
 
-    output_dir = Path("data/raw/jobvision")
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    output_file = output_dir / "job_list.csv"
-
-    if output_file.exists():
-
-        all_df = pd.read_csv(output_file)
-
+    if OUTPUT_FILE.exists():
+        all_df = pd.read_csv(OUTPUT_FILE, low_memory=False)
+        done_keywords = set(all_df["keyword"].dropna().astype(str))
     else:
-
         all_df = pd.DataFrame()
+        done_keywords = set()
+
+    print(f"Already completed keywords: {len(done_keywords)}")
 
     for keyword in KEYWORDS:
+
+        if keyword in done_keywords:
+            print(f"Skip (already done): {keyword}")
+            continue
 
         print("-" * 60)
         print(f"Start Keyword : {keyword}")
         print("-" * 60)
 
-        jobs = fetcher.fetch_keyword(keyword)
+        try:
+            jobs = fetcher.fetch_keyword(keyword)
+        except KeyboardInterrupt:
+            print("\nInterrupted by user.")
+            break
 
         if jobs:
-
             df = pd.DataFrame(jobs)
-
-            all_df = pd.concat([all_df, df], ignore_index=True)
-
+            all_df = df if all_df.empty else pd.concat([all_df, df], ignore_index=True)
             all_df.drop_duplicates(subset=["source", "job_id", "keyword"], inplace=True)
-
-            all_df.to_csv(output_file, index=False, encoding="utf-8-sig")
-            print(f"Saved -> {len(all_df)} unique jobs")
+            save(all_df)
+            print(f"Saved -> {len(all_df)} rows")
 
         time.sleep(random.uniform(2, 4))
 
     print("\nFinished.")
-    print(f"Total Unique Jobs : {len(all_df)}")
-
+    if not all_df.empty:
+        print(f"Total rows : {len(all_df)}")
+        print(f"Unique jobs: {all_df['job_id'].nunique()}")
 
 
 if __name__ == "__main__":
