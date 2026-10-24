@@ -11,6 +11,7 @@ from src.api.api_client import JobVisionAPI
 PAGE_SIZE = 30
 MAX_PAGES = 200
 MAX_CONSECUTIVE_FAILS = 3
+STOP_AFTER_STALE_PAGES = 2   
 
 OUTPUT_DIR = Path("data/raw/jobvision")
 OUTPUT_FILE = OUTPUT_DIR / "job_list.csv"
@@ -119,9 +120,11 @@ class JobFetcher:
 
         return jobs
 
-    def fetch_keyword(self, keyword):
+    def fetch_keyword(self, keyword, known_ids=frozenset(), update=False):
+
         page = 1
         fails = 0
+        stale_pages = 0
         all_jobs = []
         seen_ids = set()
 
@@ -144,15 +147,25 @@ class JobFetcher:
             if not jobs:
                 break
 
-            new_jobs = [j for j in jobs if j["job_id"] not in seen_ids]
-            if not new_jobs:
-                print("No new jobs on this page -> stopping keyword")
+            unseen = [j for j in jobs if j["job_id"] not in seen_ids]
+            if not unseen:
+                print("Repeated page -> stopping keyword")
                 break
+            seen_ids.update(j["job_id"] for j in unseen)
 
-            seen_ids.update(j["job_id"] for j in new_jobs)
-            all_jobs.extend(new_jobs)
+            fresh = [j for j in unseen if j["job_id"] not in known_ids]
+            all_jobs.extend(fresh)
 
-            print(f"Page jobs: {len(jobs)} | New: {len(new_jobs)} | Total: {len(all_jobs)}")
+            print(f"Page jobs: {len(jobs)} | New: {len(fresh)} | Total new: {len(all_jobs)}")
+
+            if update:
+                if fresh:
+                    stale_pages = 0
+                else:
+                    stale_pages += 1
+                    if stale_pages >= STOP_AFTER_STALE_PAGES:
+                        print("No new jobs in recent pages -> stopping keyword")
+                        break
 
             if len(jobs) < (data.get("pageSize") or PAGE_SIZE):
                 break
@@ -170,21 +183,30 @@ def save(df):
     tmp.replace(OUTPUT_FILE)
 
 
-def main():
+def main(update=False):
     fetcher = JobFetcher()
 
     if OUTPUT_FILE.exists():
         all_df = pd.read_csv(OUTPUT_FILE, low_memory=False)
+        all_df = all_df.dropna(subset=["job_id"])
+        all_df["job_id"] = all_df["job_id"].astype("int64")
         done_keywords = set(all_df["keyword"].dropna().astype(str))
+        known = all_df.groupby("keyword")["job_id"].agg(set).to_dict()
     else:
         all_df = pd.DataFrame()
         done_keywords = set()
+        known = {}
 
+    ids_before = set(all_df["job_id"]) if not all_df.empty else set()
+
+    print(f"Mode: {'UPDATE' if update else 'FIRST RUN'}")
     print(f"Already completed keywords: {len(done_keywords)}")
 
     for keyword in KEYWORDS:
 
-        if keyword in done_keywords:
+        already_done = keyword in done_keywords
+
+        if already_done and not update:
             print(f"Skip (already done): {keyword}")
             continue
 
@@ -193,7 +215,11 @@ def main():
         print("-" * 60)
 
         try:
-            jobs = fetcher.fetch_keyword(keyword)
+            jobs = fetcher.fetch_keyword(
+                keyword,
+                known_ids=known.get(keyword, set()),
+                update=update and already_done,
+            )
         except KeyboardInterrupt:
             print("\nInterrupted by user.")
             break
@@ -203,15 +229,17 @@ def main():
             all_df = df if all_df.empty else pd.concat([all_df, df], ignore_index=True)
             all_df.drop_duplicates(subset=["source", "job_id", "keyword"], inplace=True)
             save(all_df)
+            known.setdefault(keyword, set()).update(df["job_id"])
             print(f"Saved -> {len(all_df)} rows")
 
         time.sleep(random.uniform(2, 4))
 
     print("\nFinished.")
     if not all_df.empty:
-        print(f"Total rows : {len(all_df)}")
-        print(f"Unique jobs: {all_df['job_id'].nunique()}")
-
+        new_ids = set(all_df["job_id"]) - ids_before
+        print(f"Total rows      : {len(all_df)}")
+        print(f"Unique jobs     : {all_df['job_id'].nunique()}")
+        print(f"New unique jobs : {len(new_ids)}")
 
 
 if __name__ == "__main__":
